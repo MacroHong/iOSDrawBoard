@@ -22,6 +22,7 @@
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
+        // 设置默认值
         self.backgroundColor = [UIColor whiteColor];
         _totalPathPoints = [[NSMutableArray alloc] init];
         _lineColor = [UIColor blackColor];
