@@ -29,6 +29,15 @@
 - (void)setLineWidth:(CGFloat)width;
 
 /*!
+ *  @author Macro QQ:778165728, 16-09-01
+ *
+ *  @brief  设置画板背景图
+ *
+ *  @param image 背景图
+ */
+- (void)setBackgroundImage:(UIImage *)image;
+
+/*!
  *  @author Macro QQ:778165728, 15-11-04
  *
  *  @brief  清屏

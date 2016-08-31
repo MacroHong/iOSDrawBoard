@@ -12,8 +12,9 @@
 {
     // 记录画板上的每一路径(每一路径又是一个小数组(小数组中的元素是点))
     NSMutableArray *_totalPathPoints;
-    UIColor *_lineColor;
-    CGFloat _lineWidth;
+    UIColor *_lineColor; // 画笔颜色
+    CGFloat _lineWidth; // 画笔宽度
+    UIImage *_bgImage; // 画板背景图
 }
 @end
 
@@ -89,8 +90,16 @@
 
 // 绘制 每产生一个新的点 就触发此方法
 - (void)drawRect:(CGRect)rect {
+    
     // 获取上下文
-    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    // 绘制背景图片
+    if (_bgImage) {
+        CGImageRef image = CGImageRetain(_bgImage.CGImage);
+        MHDrawImage(context, [self fixBgImageFrame], image);
+        CGImageRelease(image);
+    }
     
     for (NSMutableArray *pathPoints in _totalPathPoints) {
          // 一条路径
@@ -98,18 +107,69 @@
             CGPoint pos = [pathPoints[i] CGPointValue];
             if (i == 0) {
                 // 设置新的路径
-                CGContextMoveToPoint(ctx, pos.x, pos.y);
+                CGContextMoveToPoint(context, pos.x, pos.y);
             } else {
                 // 连到对应的路径上
-                CGContextAddLineToPoint(ctx, pos.x, pos.y);
+                CGContextAddLineToPoint(context, pos.x, pos.y);
             }
         }
     }
-    CGContextSetStrokeColorWithColor(ctx, _lineColor.CGColor);
-    CGContextSetLineCap(ctx, kCGLineCapRound);
-    CGContextSetLineJoin(ctx, kCGLineJoinRound);
-    CGContextSetLineWidth(ctx, _lineWidth);
-    CGContextStrokePath(ctx);
+    CGContextSetStrokeColorWithColor(context, _lineColor.CGColor);
+    CGContextSetLineCap(context, kCGLineCapRound);
+    CGContextSetLineJoin(context, kCGLineJoinRound);
+    CGContextSetLineWidth(context, _lineWidth);
+    CGContextStrokePath(context);
+}
+
+// 坐标转换
+void MHDrawImage(CGContextRef context, CGRect rect, CGImageRef image) {
+    CGContextSaveGState(context);
+    CGContextTranslateCTM(context, rect.origin.x, rect.origin.y);
+    CGContextTranslateCTM(context, 0, rect.size.height);
+    CGContextScaleCTM(context, 1.0, -1.0);
+    CGContextTranslateCTM(context, -rect.origin.x, -rect.origin.y);
+    CGContextDrawImage(context, rect, image);
+    CGContextRestoreGState(context);
+}
+
+// 让背景图片等比例居中
+- (CGRect)fixBgImageFrame {
+    CGFloat w1 = self.frame.size.width;
+    CGFloat h1 = self.frame.size.height;
+    CGFloat w2 = _bgImage.size.width;
+    CGFloat h2 = _bgImage.size.height;
+    
+    CGFloat x=0;
+    CGFloat y=0;
+    CGFloat width=0;
+    CGFloat height=0;
+    
+    if (w2*h1>=w1*h2) {
+        if (w2>=w1) {
+            x=0;
+            width=w1;
+            height=width*h2/w2;
+            y = (h1-height)/2;
+        } else {
+            width=w2;
+            height=h2;
+            x=(w1-width)/2;
+            y=(h1-height)/2;
+        }
+    } else {
+        if (h2>=h1) {
+            y=0;
+            height=h1;
+            width=w2*height/h2;
+            x=(w1-width)/2;
+        } else {
+            width=w2;
+            height=h2;
+            x=(w1-width)/2;
+            y=(h1-height)/2;
+        }
+    }
+    return CGRectMake(x, y, width, height);
 }
 
 /*!
@@ -140,6 +200,17 @@
  */
 - (void)setLineColor:(UIColor *)color {
     _lineColor = color;
+}
+
+/*!
+ *  @author Macro QQ:778165728, 16-09-01
+ *
+ *  @brief  设置画板背景图
+ *
+ *  @param image 背景图
+ */
+- (void)setBackgroundImage:(UIImage *)image {
+    _bgImage = image;
 }
 
 /*!

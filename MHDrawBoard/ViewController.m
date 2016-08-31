@@ -33,8 +33,10 @@ enum {
     self.view.backgroundColor = [UIColor grayColor];
     
     _boardView = [[MHBoardView alloc] initWithFrame:CGRectMake(10, 20, kWidth - 20, kHeight - 80)];
-    [_boardView setLineWidth:1];
-    _boardView.backgroundColor = [UIColor whiteColor];
+    [_boardView setLineWidth:5];
+    [_boardView setLineColor:[UIColor redColor]];
+//    _boardView.backgroundColor = [UIColor whiteColor];
+    [_boardView setBackgroundImage:[UIImage imageNamed:@"bg"]];
     [self.view addSubview:_boardView];
     
     [self.view addSubview:[self createBtnWithTitle:@"clear" frame:CGRectMake(10, kHeight - 45, (kWidth - 45) / 3, 30) tag:CLEARBTN]];
